@@ -157,7 +157,10 @@ def maybe_initialize_jax_distributed_system(raw_keys):
   ] == "gpu_multiprocess":
     max_logging.log("Attempting to initialize the jax distributed system...")
     if not raw_keys["enable_emergency_checkpoint"]:
-      jax.distributed.initialize(initialization_timeout=raw_keys["jax_distributed_initialization_timeout"])
+      jax_coordinator_bind_address= os.getenv("JAX_COORDINATOR_BIND_ADDRESS")
+      num_processes=int(os.getenv("JAX_NUM_PROCESSES"))
+      process_id = int(os.getenv("TPU_WORKER_ID"))
+      jax.distributed.initialize(coordinator_address=jax_coordinator_bind_address, num_processes=num_processes, process_id=process_id, initialization_timeout=raw_keys["jax_distributed_initialization_timeout"])
     else:
       if raw_keys["hardware"] == "gpu_multiprocess":
         max_logging.log("Initializing jax distribtued to support local checkpointing with GPUs...")
